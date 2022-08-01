@@ -1,4 +1,5 @@
 ﻿using E_Learning.Data;
+using E_Learning.Interfaces;
 using E_Learning.Model;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -12,95 +13,71 @@ namespace E_Learning.Controllers
     [ApiController]
     public class AccountController : ControllerBase
     {
-        private readonly MyDbContext _context;
+        private readonly IRepository _ElearRepository;
 
-        public AccountController(MyDbContext context)
+        public AccountController(IRepository ElearRepository)
         {
-            _context = context;
+            _ElearRepository = ElearRepository;
         }
 
         [HttpGet]
         public IActionResult GetAll()
         {
-            var dsAccount = _context.Accounts.ToList();
-            return Ok(dsAccount);
+            try
+            {
+                return Ok(_ElearRepository.GetAllAccount());
+            }
+            catch
+            {
+                return BadRequest();
+            }
         }
 
         [HttpGet("{id}")]
         public IActionResult GetById(int id)
         {
-            var Account = _context.Accounts.SingleOrDefault(acc => acc.Idaccount == id);
-            if (Account != null)
+            try
             {
-                return Ok(Account);
+                var Account = _ElearRepository.GetByIdAccount(id);
+                if (Account != null)
+                {
+                    return Ok(Account);
+                }
+                else
+                {
+                    return NotFound();
+                }
             }
-            else
+            catch
             {
-                return NotFound();
+                return BadRequest();
             }
-
         }
 
         [HttpPost]
-        public IActionResult CreateNew(Accountmodel model)
+        public IActionResult CreateNew(Account model)
         {
             try
-            {
-                var Account = new Account
-                {
-                    User = model.User,
-                    Password = model.Password,
-                    Gmail = model.Gmail,
-                    Phone = model.Phone,
-                    Type = model.Type,
-                    Createdate = model.Createdate
-                };
-                _context.Add(Account);
-                _context.SaveChanges();
-                return Ok(Account);
+            {                
+                return Ok(_ElearRepository.CreateNewAccount(model));
             }
             catch
             {
                 return BadRequest();
-            }
+            }    
         }
 
         [HttpPut("{id}")]
-        public IActionResult UpdateById(int id, Accountmodel model)
+        public IActionResult UpdateById(int id, Accountmodel account)
         {
-            var Account = _context.Accounts.SingleOrDefault(acc => acc.Idaccount == id);
-            if (Account != null)
+            if (id != account.Idaccount)
             {
-                Account.User = model.User;
-                Account.Password = model.Password;
-                Account.Gmail = model.Gmail;
-                Account.Phone = model.Phone;
-                Account.Type = model.Type;
-                Account.Createdate = model.Createdate;
-                _context.SaveChanges();
-                return NoContent();
+                return BadRequest();
             }
-            else
-            {
-                return NotFound();
-            }
-
-        }
-
-        [HttpDelete("{id}")]
-        public IActionResult Remove(int id)
-        {
             try
             {
-                var Account = _context.Accounts.SingleOrDefault(acc => acc.Idaccount == id);
-                if (Account != null)
-                {
-                    _context.Remove(Account);
-                    _context.SaveChanges();
-                    return Ok();
-
-                }
-                return NotFound();
+                _ElearRepository.UpdateByIdAccount(account);
+                return NoContent();
             }
             catch
             {
@@ -108,5 +85,21 @@ namespace E_Learning.Controllers
             }
         }
 
-    }
-}
+            [HttpDelete("{id}")]
+            public IActionResult Remove(int id)
+            {
+                try
+                {
+                    _ElearRepository.DeleteByIdAccount(id);
+                    return Ok();
+                }
+                catch
+                {
+                    return BadRequest();
+                }
+
+            }
+        } 
+    } 
+
+

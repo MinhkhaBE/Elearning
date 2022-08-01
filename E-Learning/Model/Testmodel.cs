@@ -7,6 +7,7 @@ namespace E_Learning.Model
 {
     public class Testmodel
     {
+        public int Idtest { get; set; }
         public string Nametest { get; set; }
         public string Content { get; set; }
         public string Time { get; set; }

@@ -1,4 +1,5 @@
 ﻿using E_Learning.Data;
+using E_Learning.Interfaces;
 using E_Learning.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -13,51 +14,54 @@ namespace E_Learning.Controllers
     [ApiController]
     public class ClassController : ControllerBase
     {
-        private readonly MyDbContext _context;
+        private readonly IRepository _ElearRepository;
 
-        public ClassController(MyDbContext context)
+        public ClassController(IRepository ElearRepository)
         {
-            _context = context;
+            _ElearRepository = ElearRepository;
         }
 
         [HttpGet]
         public IActionResult GetAll()
         {
-            var dsClass = _context.Classes.ToList();
-            return Ok(dsClass);
+            try
+            {
+                return Ok(_ElearRepository.GetAllClass());
+            }
+            catch
+            {
+                return BadRequest();
+            }
         }
 
         [HttpGet("{id}")]
         public IActionResult GetById(int id)
         {
-            var Class = _context.Classes.SingleOrDefault(cl => cl.Idclass == id);
-            if (Class != null)
+            try
             {
-                return Ok(Class);
+                var Class = _ElearRepository.GetByIdClass(id);
+                if (Class != null)
+                {
+                    return Ok(Class);
+                }
+                else
+                {
+                    return NotFound();
+                }
             }
-            else
+            catch
             {
-                return NotFound();
+                return BadRequest();
             }
 
         }
 
         [HttpPost]
-        public IActionResult CreateNew(Classmodel model)
+        public IActionResult CreateNew(Class model)
         {
             try
             {
-                var Class = new Class
-                {
-                    Nameclass = model.Nameclass,
-                    Topic = model.Topic,
-                    Semester = model.Semester,
-                    Status = model.Status,
-                    Idsubject = model.Idsubject
-                };
-                _context.Add(Class);
-                _context.SaveChanges();
-                return Ok(Class);
+                return Ok(_ElearRepository.CreateNewClass(model));
             }
             catch
             {
@@ -66,46 +70,38 @@ namespace E_Learning.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult UpdateById(int id, Classmodel model)
+        public IActionResult UpdateById(int id, Classmodel classs)
         {
-            var Class = _context.Classes.SingleOrDefault(cl => cl.Idclass == id);
-            if (Class != null)
+            if (id != classs.Idclass)
             {
-                Class.Nameclass = model.Nameclass;
-                Class.Topic = model.Topic;
-                Class.Semester = model.Semester;
-                Class.Status = model.Status;
-                Class.Idsubject = model.Idsubject;
-                _context.SaveChanges();
+                return BadRequest();
+            }
+            try
+            {
+                _ElearRepository.UpdateByIdClass(classs);
                 return NoContent();
             }
-            else
+            catch
             {
-                return NotFound();
+                return BadRequest();
             }
 
         }
 
 
         [HttpDelete("{id}")]
-        public IActionResult Remove(int id)
+        public IActionResult Remove(int id) 
         {
             try
             {
-                var Class = _context.Classes.SingleOrDefault(cl => cl.Idclass == id);
-                if (Class != null)
-                {
-                    _context.Remove(Class);
-                    _context.SaveChanges();
-                    return Ok();
-
-                }
-                return NotFound();
+                _ElearRepository.DeleteByIdClass(id);
+                return Ok();
             }
             catch
             {
                 return BadRequest();
             }
+
         }
     }
 }

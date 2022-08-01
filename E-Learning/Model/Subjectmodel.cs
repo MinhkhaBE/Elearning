@@ -7,6 +7,7 @@ namespace E_Learning.Model
 {
     public class Subjectmodel
     {
+        public int Idsubject { get; set; }
         public string Namesubject { get; set; }
     }
 }

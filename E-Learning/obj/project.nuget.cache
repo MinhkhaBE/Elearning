@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "FYyfoCRaXZp1yv6sQA2J6K7NFv5xsHVfZ4iYNpNwRi04Xa4TAnLWCI60ebsPErdsOWy/TseKc/euEpHbn9RV6g==",
+  "dgSpecHash": "WbIxG0WPQjzSQGO+XSxnbzxuKgJmaqVAJNUPST/HBSu3JeEc6Q28UA9hytpegw2nSYvVfz9ZI8F0cu15iGppgQ==",
   "success": true,
-  "projectFilePath": "C:\\Users\\Admin\\OneDrive\\Desktop\\E-Learning\\E-Learning\\E-Learning.csproj",
+  "projectFilePath": "C:\\Users\\Admin\\OneDrive\\Desktop\\Elearning\\E-Learning\\E-Learning.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Admin\\.nuget\\packages\\humanizer.core\\2.8.26\\humanizer.core.2.8.26.nupkg.sha512",
     "C:\\Users\\Admin\\.nuget\\packages\\microsoft.csharp\\4.7.0\\microsoft.csharp.4.7.0.nupkg.sha512",

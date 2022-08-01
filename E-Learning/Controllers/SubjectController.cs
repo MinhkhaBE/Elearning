@@ -1,4 +1,5 @@
 ﻿using E_Learning.Data;
+using E_Learning.Interfaces;
 using E_Learning.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -13,48 +14,53 @@ namespace E_Learning.Controllers
     [ApiController]
     public class SubjectController : ControllerBase
     {
-        private readonly MyDbContext _context;
+        private readonly IRepository _ElearRepository;
 
-        public SubjectController(MyDbContext context)
+        public SubjectController(IRepository ElearRepository)
         {
-            _context = context;
+            _ElearRepository = ElearRepository;
         }
 
         [HttpGet]
         public IActionResult GetAll()
         {
-            var dsSubject = _context.Subjects.ToList();
-            return Ok(dsSubject);
+            try
+            {
+                return Ok(_ElearRepository.GetAllSubject());
+            }
+            catch
+            {
+                return BadRequest();
+            }
         }
 
         [HttpGet("{id}")]
         public IActionResult GetById(int id)
         {
-            var Subject = _context.Subjects.SingleOrDefault(su => su.Idsubject == id);
-            if (Subject != null)
+            try
             {
-                return Ok(Subject);
+                var Subject = _ElearRepository.GetByIdSubject(id);
+                if (Subject != null)
+                {
+                    return Ok(Subject);
+                }
+                else
+                {
+                    return NotFound();
+                }
             }
-            else
+            catch
             {
-                return NotFound();
+                return BadRequest();
             }
-
         }
 
         [HttpPost]
-        public IActionResult CreateNew(Subjectmodel model)
+        public IActionResult CreateNew(Subject model)
         {
             try
             {
-                var Subject = new Subject
-                {
-                    Namesubject = model.Namesubject                    
-                };
-
-                _context.Add(Subject);
-                _context.SaveChanges();
-                return Ok(Subject);
+                return Ok(_ElearRepository.CreateNewSubject(model));
             }
             catch
             {
@@ -63,21 +69,21 @@ namespace E_Learning.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult UpdateById(int id, Subjectmodel model)
+        public IActionResult UpdateById(int id, Subjectmodel subject)
         {
-            var Subject = _context.Subjects.SingleOrDefault(su => su.Idsubject == id);
-            if (Subject != null)
+            if (id != subject.Idsubject)
             {
-                Subject.Namesubject = model.Namesubject;
-
-                _context.SaveChanges();
+                return BadRequest();
+            }
+            try
+            {
+                _ElearRepository.UpdateByIdSubject(subject);
                 return NoContent();
             }
-            else
+            catch
             {
-                return NotFound();
+                return BadRequest();
             }
-
         }
 
 
@@ -86,15 +92,8 @@ namespace E_Learning.Controllers
         {
             try
             {
-                var Subject = _context.Subjects.SingleOrDefault(su => su.Idsubject == id);
-                if (Subject != null)
-                {
-                    _context.Remove(Subject);
-                    _context.SaveChanges();
-                    return Ok();
-
-                }
-                return NotFound();
+                _ElearRepository.DeleteByIdSubject(id);
+                return Ok();
             }
             catch
             {

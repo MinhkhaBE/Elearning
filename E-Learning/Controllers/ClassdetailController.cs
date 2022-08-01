@@ -1,4 +1,5 @@
 ﻿using E_Learning.Data;
+using E_Learning.Interfaces;
 using E_Learning.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -13,55 +14,19 @@ namespace E_Learning.Controllers
     [ApiController]
     public class ClassdetailController : ControllerBase
     {
-        private readonly MyDbContext _context;
+        private readonly IRepository _ElearRepository;
 
-        public ClassdetailController(MyDbContext context)
+        public ClassdetailController(IRepository ElearRepository)
         {
-            _context = context;
+            _ElearRepository = ElearRepository;
         }
 
         [HttpGet]
         public IActionResult GetAll()
         {
-            var dsClassdetail = _context.Classdetails.ToList();
-            return Ok(dsClassdetail);
-        }
-
-        [HttpGet("{id}")]
-        public IActionResult GetById(int id)
-        {
-            var Classdetail = _context.Classdetails.SingleOrDefault(cld => cld.Idclassdetail == id);
-            if (Classdetail != null)
-            {
-                return Ok(Classdetail);
-            }
-            else
-            {
-                return NotFound();
-            }
-
-        }
-
-        [HttpPost]
-        public IActionResult CreateNew(Classdetailmodel model)
-        {
             try
             {
-                var Classdetail = new Classdetail
-                {
-                   Passwordclass = model.Passwordclass,
-                   Teacher = model.Teacher,
-                   Lesson = model.Lesson,
-                   Studytime = model.Studytime,
-                   Schedule = model.Schedule,
-                   description = model.description,
-                   Idclass = model.Idclass
-
-                };
-
-                _context.Add(Classdetail);
-                _context.SaveChanges();
-                return Ok(Classdetail);
+                return Ok(_ElearRepository.GetAllClassdetail());
             }
             catch
             {
@@ -69,25 +34,56 @@ namespace E_Learning.Controllers
             }
         }
 
-        [HttpPut("{id}")]
-        public IActionResult UpdateById(int id, Classdetailmodel model)
+        [HttpGet("{id}")]
+        public IActionResult GetById(int id)
         {
-            var Classdetail = _context.Classdetails.SingleOrDefault(cld => cld.Idclassdetail == id);
-            if (Classdetail != null)
+            try
             {
-                Classdetail.Passwordclass = model.Passwordclass;
-                Classdetail.Teacher = model.Teacher;
-                Classdetail.Lesson = model.Lesson;
-                Classdetail.Studytime = model.Studytime;
-                Classdetail.Schedule = model.Schedule;
-                Classdetail.description = model.description;
-                Classdetail.Idclass = model.Idclass;
-                _context.SaveChanges();
+                var Classdetail = _ElearRepository.GetByIdClassdetail(id);
+                if (Classdetail != null)
+                {
+                    return Ok(Classdetail);
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
+            catch
+            {
+                return BadRequest();
+            }
+        }
+
+        [HttpPost]
+        public IActionResult CreateNew(Classdetail model)
+        {
+            try
+            {
+                return Ok(_ElearRepository.CreateNewClassdetail(model));
+            }
+            catch
+            {
+                return BadRequest();
+            }
+
+        }
+
+        [HttpPut("{id}")]
+        public IActionResult UpdateById(int id, Classdetailmodel classdetail)
+        {
+            if (id != classdetail.Idclassdetail)
+            {
+                return BadRequest();
+            }
+            try
+            {
+                _ElearRepository.UpdateByIdClassdetail(classdetail);
                 return NoContent();
             }
-            else
+            catch
             {
-                return NotFound();
+                return BadRequest();
             }
 
         }
@@ -98,15 +94,8 @@ namespace E_Learning.Controllers
         {
             try
             {
-                var Classdetail = _context.Classdetails.SingleOrDefault(cld => cld.Idclassdetail == id);
-                if (Classdetail != null)
-                {
-                    _context.Remove(Classdetail);
-                    _context.SaveChanges();
-                    return Ok();
-
-                }
-                return NotFound();
+                _ElearRepository.DeleteByIdClassdetail(id);
+                return Ok();
             }
             catch
             {

@@ -1,4 +1,5 @@
 ﻿using E_Learning.Data;
+using E_Learning.Interfaces;
 using E_Learning.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -13,54 +14,53 @@ namespace E_Learning.Controllers
     [ApiController]
     public class StudentController : ControllerBase
     {
-        private readonly MyDbContext _context;
+        private readonly IRepository _ElearRepository;
 
-        public StudentController(MyDbContext context)
+        public StudentController(IRepository ElearRepository)
         {
-            _context = context;
+            _ElearRepository = ElearRepository;
         }
 
         [HttpGet]
         public IActionResult GetAll()
         {
-            var dsStudent = _context.Students.ToList();
-            return Ok(dsStudent);
+            try
+            {
+                return Ok(_ElearRepository.GetAllStudent());
+            }
+            catch
+            {
+                return BadRequest();
+            }
         }
 
         [HttpGet("{id}")]
         public IActionResult GetById(int id)
         {
-            var Student = _context.Students.SingleOrDefault(st => st.Idstudent == id);
-            if (Student != null)
+            try
             {
-                return Ok(Student);
+                var Student = _ElearRepository.GetByIdStudent(id);
+                if (Student != null)
+                {
+                    return Ok(Student);
+                }
+                else
+                {
+                    return NotFound();
+                }
             }
-            else
+            catch
             {
-                return NotFound();
+                return BadRequest();
             }
-
         }
 
         [HttpPost]
-        public IActionResult CreateNew(Studentmodel model)
+        public IActionResult CreateNew(Student model)
         {
             try
             {
-                var Student = new Student
-                {
-                    Namestudent = model.Namestudent,
-                    Gmail = model.Gmail,
-                    Phone = model.Phone,
-                    Gender = model.Gender,
-                    Birth =model.Birth,
-                    Idaccount = model.Idaccount
-                    
-                };
-
-                _context.Add(Student);
-                _context.SaveChanges();
-                return Ok(Student);
+                return Ok(_ElearRepository.CreateNewStudent(model));
             }
             catch
             {
@@ -69,25 +69,21 @@ namespace E_Learning.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult UpdateById(int id, Studentmodel model)
+        public IActionResult UpdateById(int id, Studentmodel student)
         {
-            var Student = _context.Students.SingleOrDefault(st => st.Idstudent == id);
-            if (Student != null)
+            if (id != student.Idstudent)
             {
-                Student.Namestudent = model.Namestudent;
-                Student.Gmail = model.Gmail;
-                Student.Phone = model.Phone;
-                Student.Gender = model.Gender;
-                Student.Birth = model.Birth;
-                Student.Idaccount = model.Idaccount;
-                _context.SaveChanges();
+                return BadRequest();
+            }
+            try
+            {
+                _ElearRepository.UpdateByIdStudent(student);
                 return NoContent();
             }
-            else
+            catch
             {
-                return NotFound();
+                return BadRequest();
             }
-
         }
 
 
@@ -96,15 +92,8 @@ namespace E_Learning.Controllers
         {
             try
             {
-                var Student = _context.Students.SingleOrDefault(st => st.Idstudent == id);
-                if (Student != null)
-                {
-                    _context.Remove(Student);
-                    _context.SaveChanges();
-                    return Ok();
-
-                }
-                return NotFound();
+                _ElearRepository.DeleteByIdStudent(id);
+                return Ok();
             }
             catch
             {

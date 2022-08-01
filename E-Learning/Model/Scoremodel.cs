@@ -7,6 +7,7 @@ namespace E_Learning.Model
 {
     public class Scoremodel
     {
+        public int Idscore { get; set; }
         public double Scorediligence { get; set; }
         public double Scoreoral { get; set; }
         public double Score15min { get; set; }

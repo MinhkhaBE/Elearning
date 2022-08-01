@@ -1,4 +1,5 @@
 ﻿using E_Learning.Data;
+using E_Learning.Interfaces;
 using E_Learning.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -13,53 +14,54 @@ namespace E_Learning.Controllers
     [ApiController]
     public class TeacherController : ControllerBase
     {
-        private readonly MyDbContext _context;
+        private readonly IRepository _ElearRepository;
 
-        public TeacherController(MyDbContext context)
+        public TeacherController(IRepository ElearRepository)
         {
-            _context = context;
+            _ElearRepository = ElearRepository;
         }
+
 
         [HttpGet]
         public IActionResult GetAll()
         {
-            var dsTeacher = _context.Teachers.ToList();
-            return Ok(dsTeacher);
+            try
+            {
+                return Ok(_ElearRepository.GetAllTeacher());
+            }
+            catch
+            {
+                return BadRequest();
+            }
         }
 
         [HttpGet("{id}")]
         public IActionResult GetById(int id)
         {
-            var Teacher = _context.Teachers.SingleOrDefault(tea => tea.Idteacher == id);
-            if (Teacher != null)
+            try
             {
-                return Ok(Teacher);
+                var Teacher = _ElearRepository.GetByIdTeacher(id);
+                if (Teacher != null)
+                {
+                    return Ok(Teacher);
+                }
+                else
+                {
+                    return NotFound();
+                }
             }
-            else
+            catch
             {
-                return NotFound();
+                return BadRequest();
             }
-
         }
 
         [HttpPost]
-        public IActionResult CreateNew(Teachermodel model)
+        public IActionResult CreateNew(Teacher model)
         {
             try
             {
-                var Teacher = new Teacher
-                {
-                    Nameteacher = model.Nameteacher,
-                    Gmail = model.Phone,
-                    Phone = model.Phone,
-                    Gender = model.Gender,
-                    Birth = model.Birth,
-                    Idaccount = model.Idaccount
-                };
-
-                _context.Add(Teacher);
-                _context.SaveChanges();
-                return Ok(Teacher);
+                return Ok(_ElearRepository.CreateNewTeacher(model));
             }
             catch
             {
@@ -68,25 +70,21 @@ namespace E_Learning.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult UpdateById(int id, Teachermodel model)
+        public IActionResult UpdateById(int id, Teachermodel teacher)
         {
-            var Teacher = _context.Teachers.SingleOrDefault(tea => tea.Idteacher == id);
-            if (Teacher != null)
+            if (id != teacher.Idteacher)
             {
-                Teacher.Nameteacher = model.Nameteacher;
-                Teacher.Gmail = model.Phone;
-                Teacher.Phone = model.Phone;
-                Teacher.Gender = model.Gender;
-                Teacher.Birth = model.Birth;
-                Teacher.Idaccount = model.Idaccount;
-                _context.SaveChanges();
+                return BadRequest();
+            }
+            try
+            {
+                _ElearRepository.UpdateByIdTeacher(teacher);
                 return NoContent();
             }
-            else
+            catch
             {
-                return NotFound();
+                return BadRequest();
             }
-
         }
 
 
@@ -95,20 +93,14 @@ namespace E_Learning.Controllers
         {
             try
             {
-                var Teacher = _context.Teachers.SingleOrDefault(tea => tea.Idteacher == id);
-                if (Teacher != null)
-                {
-                    _context.Remove(Teacher);
-                    _context.SaveChanges();
-                    return Ok();
-
-                }
-                return NotFound();
+                _ElearRepository.DeleteByIdTeacher(id);
+                return Ok();
             }
             catch
             {
                 return BadRequest();
             }
+
         }
     }
 }

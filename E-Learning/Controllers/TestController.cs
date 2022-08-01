@@ -1,4 +1,5 @@
 ﻿using E_Learning.Data;
+using E_Learning.Interfaces;
 using E_Learning.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -13,54 +14,53 @@ namespace E_Learning.Controllers
     [ApiController]
     public class TestController : ControllerBase
     {
-        private readonly MyDbContext _context;
+        private readonly IRepository _ElearRepository;
 
-        public TestController(MyDbContext context)
+        public TestController(IRepository ElearRepository)
         {
-            _context = context;
+            _ElearRepository = ElearRepository;
         }
 
         [HttpGet]
         public IActionResult GetAll()
         {
-            var dsTest = _context.Tests.ToList();
-            return Ok(dsTest);
+            try
+            {
+                return Ok(_ElearRepository.GetAllTest());
+            }
+            catch
+            {
+                return BadRequest();
+            }
         }
 
         [HttpGet("{id}")]
         public IActionResult GetById(int id)
         {
-            var Test = _context.Tests.SingleOrDefault(te => te.Idtest == id);
-            if (Test != null)
+            try
             {
-                return Ok(Test);
+                var Test = _ElearRepository.GetByIdTest(id);
+                if (Test != null)
+                {
+                    return Ok(Test);
+                }
+                else
+                {
+                    return NotFound();
+                }
             }
-            else
+            catch
             {
-                return NotFound();
+                return BadRequest();
             }
-
         }
 
         [HttpPost]
-        public IActionResult CreateNew(Testmodel model)
+        public IActionResult CreateNew(Test model)
         {
             try
             {
-                var Test = new Test
-                {
-                    Nametest = model.Nametest,
-                    Content = model.Content,
-                    Time = model.Time,
-                    Createdate = model.Createdate,
-                    Score = model.Score,
-                    Status = model.Status,
-                    Idsubject = model.Idsubject,
-                };
-
-                _context.Add(Test);
-                _context.SaveChanges();
-                return Ok(Test);
+                return Ok(_ElearRepository.CreateNewTest(model));
             }
             catch
             {
@@ -69,26 +69,21 @@ namespace E_Learning.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult UpdateById(int id, Testmodel model)
+        public IActionResult UpdateById(int id, Testmodel test)
         {
-            var Test = _context.Tests.SingleOrDefault(te => te.Idtest == id);
-            if (Test != null)
+            if (id != test.Idtest)
             {
-                Test.Nametest = model.Nametest;
-                Test.Content = model.Content;
-                Test.Time = model.Time;
-                Test.Createdate = model.Createdate;
-                Test.Score = model.Score;
-                Test.Status = model.Status;
-                Test.Idsubject = model.Idsubject;
-                _context.SaveChanges();
+                return BadRequest();
+            }
+            try
+            {
+                _ElearRepository.UpdateByIdTest(test);
                 return NoContent();
             }
-            else
+            catch
             {
-                return NotFound();
+                return BadRequest();
             }
-
         }
 
 
@@ -97,15 +92,8 @@ namespace E_Learning.Controllers
         {
             try
             {
-                var Test = _context.Tests.SingleOrDefault(te => te.Idtest == id);
-                if (Test != null)
-                {
-                    _context.Remove(Test);
-                    _context.SaveChanges();
-                    return Ok();
-
-                }
-                return NotFound();
+                _ElearRepository.DeleteByIdTest(id);
+                return Ok();
             }
             catch
             {

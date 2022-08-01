@@ -7,6 +7,7 @@ namespace E_Learning.Model
 {
     public class Classdetailmodel
     {
+        public int Idclassdetail { get; set; }
         public string Passwordclass { get; set; }
         public string Teacher { get; set; }
         public string Lesson { get; set; }

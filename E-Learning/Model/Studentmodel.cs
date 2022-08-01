@@ -7,6 +7,7 @@ namespace E_Learning.Model
 {
     public class Studentmodel
     {
+        public int Idstudent { get; set; }
         public string Namestudent { get; set; }
         public string Gmail { get; set; }
         public string Phone { get; set; }

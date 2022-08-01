@@ -1,4 +1,5 @@
 ﻿using E_Learning.Data;
+using E_Learning.Interfaces;
 using E_Learning.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -13,52 +14,54 @@ namespace E_Learning.Controllers
     [ApiController]
     public class AdminController : ControllerBase
     {
-        private readonly MyDbContext _context;
+        private readonly IRepository _ElearRepository;
 
-        public AdminController(MyDbContext context)
+        public AdminController(IRepository ElearRepository)
         {
-            _context = context;
+            _ElearRepository = ElearRepository;
         }
 
         [HttpGet]
         public IActionResult GetAll()
         {
-            var dsAdmin = _context.Admins.ToList();
-            return Ok(dsAdmin);
+            try
+            {
+                return Ok(_ElearRepository.GetAllAdmin());
+            }
+            catch
+            {
+                return BadRequest();
+            }
         }
 
         [HttpGet("{id}")]
         public IActionResult GetById(int id)
         {
-            var Admin = _context.Admins.SingleOrDefault(ad => ad.Idadmin == id);
-            if (Admin != null)
+            try
             {
-                return Ok(Admin);
+                var Admin = _ElearRepository.GetByIdAdmin(id);
+                if (Admin != null)
+                {
+                    return Ok(Admin);
+                }
+                else
+                {
+                    return NotFound();
+                }
             }
-            else
+            catch
             {
-                return NotFound();
+                return BadRequest();
             }
 
         }
 
         [HttpPost]
-        public IActionResult CreateNew(Adminmodel model)
+        public IActionResult CreateNew(Admin model)
         {
             try
             {
-                var Admin = new Admin
-                {
-                    Nameadmin = model.Nameadmin,
-                    Phone = model.Phone,
-                    Gender = model.Gender,
-                    Idaccount = model.Idaccount,
-
-                };
-
-                _context.Add(Admin);
-                _context.SaveChanges();
-                return Ok(Admin);
+                return Ok(_ElearRepository.CreateNewAdmin(model));
             }
             catch
             {
@@ -67,21 +70,20 @@ namespace E_Learning.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult UpdateById(int id, Adminmodel model)
+        public IActionResult UpdateById(int id, Adminmodel admin)
         {
-            var Admin = _context.Admins.SingleOrDefault(ad => ad.Idadmin == id);
-            if (Admin != null)
+            if (id != admin.Idadmin)
             {
-                Admin.Nameadmin = model.Nameadmin;
-                Admin.Phone = model.Phone;
-                Admin.Gender = model.Gender;
-                Admin.Idaccount = model.Idaccount;
-                _context.SaveChanges();
+                return BadRequest();
+            }
+            try
+            {
+                _ElearRepository.UpdateByIdAdmin(admin);
                 return NoContent();
             }
-            else
+            catch
             {
-                return NotFound();
+                return BadRequest();
             }
 
         }
@@ -92,15 +94,8 @@ namespace E_Learning.Controllers
         {
             try
             {
-                var Admin = _context.Admins.SingleOrDefault(ad => ad.Idadmin == id);
-                if (Admin != null)
-                {
-                    _context.Remove(Admin);
-                    _context.SaveChanges();
-                    return Ok();
-                    
-                }
-                return NotFound();
+                _ElearRepository.DeleteByIdAdmin(id);
+                return Ok();
             }
             catch
             {

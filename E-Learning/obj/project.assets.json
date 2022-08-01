@@ -5984,11 +5984,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Admin\\OneDrive\\Desktop\\E-Learning\\E-Learning\\E-Learning.csproj",
+      "projectUniqueName": "C:\\Users\\Admin\\OneDrive\\Desktop\\Elearning\\E-Learning\\E-Learning.csproj",
       "projectName": "E-Learning",
-      "projectPath": "C:\\Users\\Admin\\OneDrive\\Desktop\\E-Learning\\E-Learning\\E-Learning.csproj",
+      "projectPath": "C:\\Users\\Admin\\OneDrive\\Desktop\\Elearning\\E-Learning\\E-Learning.csproj",
       "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Admin\\OneDrive\\Desktop\\E-Learning\\E-Learning\\obj\\",
+      "outputPath": "C:\\Users\\Admin\\OneDrive\\Desktop\\Elearning\\E-Learning\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\Admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -6054,7 +6054,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.202\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.407\\RuntimeIdentifierGraph.json"
       }
     }
   }
